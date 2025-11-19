@@ -1,0 +1,83 @@
+6. Given preorder and in-order traversals, write a program to construct the Binary Tree.
+
+#include <iostream>
+#include <unordered_map>
+using namespace std;
+
+struct Node {
+    int data;
+    Node *left, *right;
+};
+
+
+Node* newNode(int data) {
+    Node* node = new Node();
+    node->data = data;
+    node->left = node->right = nullptr;
+    return node;
+}
+
+
+Node* buildTree(int preorder[], int inorder[], int inStart, int inEnd,
+                int &preIndex, unordered_map<int,int> &inMap) {
+
+    if (inStart > inEnd)
+        return nullptr;
+
+    
+    int curr = preorder[preIndex++];
+    Node* node = newNode(curr);
+
+
+    if (inStart == inEnd)
+        return node;
+
+    
+    int pos = inMap[curr];
+
+    
+    node->left  = buildTree(preorder, inorder, inStart, pos - 1, preIndex, inMap);
+    node->right = buildTree(preorder, inorder, pos + 1, inEnd, preIndex, inMap);
+
+    return node;
+}
+
+
+void printInorder(Node* root) {
+    if (root == nullptr) return;
+    printInorder(root->left);
+    cout << root->data << " ";
+    printInorder(root->right);
+}
+
+void printPreorder(Node* root) {
+    if (root == nullptr) return;
+    cout << root->data << " ";
+    printPreorder(root->left);
+    printPreorder(root->right);
+}
+
+int main() {
+    int preorder[] = {40, 30, 20, 35, 50};
+    int inorder[]  = {20, 30, 35, 40, 50};
+    int n = sizeof(preorder) / sizeof(preorder[0]);
+
+
+    unordered_map<int,int> inMap;
+    for (int i = 0; i < n; i++)
+        inMap[inorder[i]] = i;
+
+    int preIndex = 0;
+
+    
+    Node* root = buildTree(preorder, inorder, 0, n - 1, preIndex, inMap);
+
+
+    cout << "Constructed Tree Inorder: ";
+    printInorder(root);
+
+    cout << "\nConstructed Tree Preorder: ";
+    printPreorder(root);
+
+    return 0;
+}
